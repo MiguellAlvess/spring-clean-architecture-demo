@@ -1,7 +1,9 @@
 package br.com.miguelalves.spring_clean_architecture_demo.infra.persistence;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
+@Table("ACCOUNT")
 public class AccountEntity {
     @Id
     private Long id;
