@@ -1,3 +1,9 @@
 2025-11-15 12:57:06.092641-03:00 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "CREATE TABLE IF NOT EXISTS [*]'account' ("; expected "identifier"; SQL statement:
 CREATE TABLE IF NOT EXISTS 'account' ( [42001-232]
+2025-11-15 13:35:50.336903-03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "CREATE TABLE IF NOT EXISTS [*]'account' ("; expected "identifier"; SQL statement:
+CREATE TABLE IF NOT EXISTS 'account' ( [42001-232]
+2025-11-15 13:39:15.905465-03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "CREATE TABLE IF NOT EXISTS account ([*]"; expected "identifier"; SQL statement:
+CREATE TABLE IF NOT EXISTS account ( [42001-232]
