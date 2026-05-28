@@ -23,10 +23,10 @@ public class PersonDTOMapper {
         }
         return buildPerson(
                 null,
-                request.getName(),
-                request.getBirthDate(),
-                request.getCpf(),
-                request.getAddresses());
+                request.name(),
+                request.birthDate(),
+                request.cpf(),
+                request.addresses());
     }
 
     public Person toDomain(UpdatePersonRequest request, Long personId) {
@@ -35,30 +35,28 @@ public class PersonDTOMapper {
         }
         return buildPerson(
                 personId,
-                request.getName(),
-                request.getBirthDate(),
-                request.getCpf(),
-                request.getAddresses());
+                request.name(),
+                request.birthDate(),
+                request.cpf(),
+                request.addresses());
     }
 
     public PersonResponse toResponse(Person person) {
         if (person == null) {
             return null;
         }
-        PersonResponse response = new PersonResponse();
-        response.setId(person.getId());
-        response.setName(person.getName());
-        response.setBirthDate(person.getBirthDate());
-        response.setCpf(person.getCpf());
-        response.setAge(person.getAge());
-
         List<AddressResponse> addresses = person.getAddresses()
                 .stream()
                 .map(this::toAddressResponse)
                 .toList();
 
-        response.setAddresses(addresses);
-        return response;
+        return new PersonResponse(
+                person.getId(),
+                person.getName(),
+                person.getBirthDate(),
+                person.getCpf(),
+                person.getAge(),
+                addresses);
     }
 
     private Person buildPerson(
@@ -88,25 +86,24 @@ public class PersonDTOMapper {
 
     private Address toAddressDomain(AddressRequest request) {
         Address address = new Address();
-        address.setId(request.getId());
-        address.setStreet(request.getStreet());
-        address.setNumber(request.getNumber());
-        address.setNeighborhood(request.getNeighborhood());
-        address.setCity(request.getCity());
-        address.setState(request.getState());
-        address.setCep(request.getCep());
+        address.setId(request.id());
+        address.setStreet(request.street());
+        address.setNumber(request.number());
+        address.setNeighborhood(request.neighborhood());
+        address.setCity(request.city());
+        address.setState(request.state());
+        address.setCep(request.cep());
         return address;
     }
 
     private AddressResponse toAddressResponse(Address address) {
-        AddressResponse response = new AddressResponse();
-        response.setId(address.getId());
-        response.setStreet(address.getStreet());
-        response.setNumber(address.getNumber());
-        response.setNeighborhood(address.getNeighborhood());
-        response.setCity(address.getCity());
-        response.setState(address.getState());
-        response.setCep(address.getCep());
-        return response;
+        return new AddressResponse(
+                address.getId(),
+                address.getStreet(),
+                address.getNumber(),
+                address.getNeighborhood(),
+                address.getCity(),
+                address.getState(),
+                address.getCep());
     }
 }
