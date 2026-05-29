@@ -6,6 +6,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import org.junit.jupiter.api.Test;
@@ -77,5 +78,39 @@ class CreatePersonIT extends IntegrationTestBase {
                                 .then().log().ifValidationFails()
                                 .statusCode(409)
                                 .body("error", containsString("CPF already exists"));
+        }
+
+        @Test
+        void shouldReturnBadRequestWhenNameIsBlank() {
+                Map<String, Object> requestBody = TestPersonFactory.createPersonWithoutAddressesRequest(
+                                "",
+                                LocalDate.now().minusYears(22),
+                                "99900011122");
+
+                given()
+                                .body(requestBody)
+                                .when()
+                                .post(PERSON_API)
+                                .then().log().ifValidationFails()
+                                .statusCode(400)
+                                .body("error", equalTo("Validation failed"))
+                                .body("details", hasItem(containsString("name: must not be blank")));
+        }
+
+        @Test
+        void shouldReturnBadRequestWhenCpfIsBlank() {
+                Map<String, Object> requestBody = TestPersonFactory.createPersonWithoutAddressesRequest(
+                                "Gabriela Silva",
+                                LocalDate.now().minusYears(27),
+                                "");
+
+                given()
+                                .body(requestBody)
+                                .when()
+                                .post(PERSON_API)
+                                .then().log().ifValidationFails()
+                                .statusCode(400)
+                                .body("error", equalTo("Validation failed"))
+                                .body("details", hasItem(containsString("cpf: must not be blank")));
         }
 }
