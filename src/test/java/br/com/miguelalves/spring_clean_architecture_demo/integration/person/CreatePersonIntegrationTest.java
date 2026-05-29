@@ -16,11 +16,11 @@ import br.com.miguelalves.spring_clean_architecture_demo.utils.TestPersonFactory
 import static io.restassured.RestAssured.given;
 import io.restassured.response.Response;
 
-class CreatePersonIT extends IntegrationTestBase {
+class CreatePersonIntegrationTest extends IntegrationTestBase {
 
         @Test
         void shouldCreatePersonSuccessfully() {
-                Map<String, Object> requestBody = TestPersonFactory.createPersonWithoutAddressesRequest(
+                Map<String, Object> requestBody = TestPersonFactory.createValidPersonRequest(
                                 "Miguel Alves",
                                 LocalDate.now().minusYears(30),
                                 "12345678900");
@@ -28,41 +28,25 @@ class CreatePersonIT extends IntegrationTestBase {
                                 .body(requestBody)
                                 .when()
                                 .post(PERSON_API)
-                                .then().log().ifValidationFails()
+                                .then()
+                                .log().ifValidationFails()
                                 .statusCode(201)
                                 .body("id", notNullValue())
                                 .body("name", equalTo("Miguel Alves"))
                                 .body("cpf", equalTo("12345678900"))
                                 .body("age", equalTo(30))
-                                .extract().response();
+                                .body("addresses", hasSize(2))
+                                .extract()
+                                .response();
                 Long createdId = response.jsonPath().getLong("id");
                 assertThat(createdId).isNotNull();
                 assertThat(personRepository.existsById(createdId)).isTrue();
-        }
-
-        @Test
-        void shouldCreatePersonWithMultipleAddresses() {
-                Map<String, Object> requestBody = TestPersonFactory.createPersonWithAddressesRequest(
-                                "Daniela Silva",
-                                LocalDate.now().minusYears(28),
-                                "98765432100");
-                given()
-                                .body(requestBody)
-                                .when()
-                                .post(PERSON_API)
-                                .then().log().ifValidationFails()
-                                .statusCode(201)
-                                .body("id", notNullValue())
-                                .body("name", equalTo("Daniela Silva"))
-                                .body("cpf", equalTo("98765432100"))
-                                .body("addresses", hasSize(2));
-                assertThat(personRepository.count()).isEqualTo(1);
                 assertThat(countAddresses()).isEqualTo(2);
         }
 
         @Test
         void shouldReturnConflictWhenCpfAlreadyExists() {
-                Map<String, Object> requestBody = TestPersonFactory.createPersonWithAddressesRequest(
+                Map<String, Object> requestBody = TestPersonFactory.createValidPersonRequest(
                                 "Pedro Almeida",
                                 LocalDate.now().minusYears(40),
                                 "11122233344");
@@ -70,28 +54,30 @@ class CreatePersonIT extends IntegrationTestBase {
                                 .body(requestBody)
                                 .when()
                                 .post(PERSON_API)
-                                .then().statusCode(201);
+                                .then()
+                                .statusCode(201);
                 given()
                                 .body(requestBody)
                                 .when()
                                 .post(PERSON_API)
-                                .then().log().ifValidationFails()
+                                .then()
+                                .log().ifValidationFails()
                                 .statusCode(409)
                                 .body("error", containsString("CPF already exists"));
         }
 
         @Test
         void shouldReturnBadRequestWhenNameIsBlank() {
-                Map<String, Object> requestBody = TestPersonFactory.createPersonWithoutAddressesRequest(
+                Map<String, Object> requestBody = TestPersonFactory.createValidPersonRequest(
                                 "",
                                 LocalDate.now().minusYears(22),
                                 "99900011122");
-
                 given()
                                 .body(requestBody)
                                 .when()
                                 .post(PERSON_API)
-                                .then().log().ifValidationFails()
+                                .then()
+                                .log().ifValidationFails()
                                 .statusCode(400)
                                 .body("error", equalTo("Validation failed"))
                                 .body("details", hasItem(containsString("name: must not be blank")));
@@ -99,18 +85,35 @@ class CreatePersonIT extends IntegrationTestBase {
 
         @Test
         void shouldReturnBadRequestWhenCpfIsBlank() {
-                Map<String, Object> requestBody = TestPersonFactory.createPersonWithoutAddressesRequest(
+                Map<String, Object> requestBody = TestPersonFactory.createValidPersonRequest(
                                 "Gabriela Silva",
                                 LocalDate.now().minusYears(27),
                                 "");
-
                 given()
                                 .body(requestBody)
                                 .when()
                                 .post(PERSON_API)
-                                .then().log().ifValidationFails()
+                                .then()
+                                .log().ifValidationFails()
                                 .statusCode(400)
                                 .body("error", equalTo("Validation failed"))
                                 .body("details", hasItem(containsString("cpf: must not be blank")));
+        }
+
+        @Test
+        void shouldReturnBadRequestWhenAddressesAreEmpty() {
+                Map<String, Object> requestBody = TestPersonFactory.createPersonWithEmptyAddressesRequest(
+                                "Lucas Silva",
+                                LocalDate.now().minusYears(30),
+                                "12345678901");
+                given()
+                                .body(requestBody)
+                                .when()
+                                .post(PERSON_API)
+                                .then()
+                                .log().ifValidationFails()
+                                .statusCode(400)
+                                .body("error", equalTo("Validation failed"))
+                                .body("details", hasItem(containsString("addresses")));
         }
 }

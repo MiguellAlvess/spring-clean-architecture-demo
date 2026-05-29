@@ -10,24 +10,34 @@ public final class TestPersonFactory {
     private TestPersonFactory() {
     }
 
-    public static Map<String, Object> createPersonWithAddressesRequest(String name, LocalDate birthDate, String cpf) {
+    public static Map<String, Object> createValidPersonRequest(String name, LocalDate birthDate, String cpf) {
         return createPersonRequest(name, birthDate, cpf, List.of(
-                address("Rua das Flores", "123", "Centro", "São Paulo", "SP", "01001-000"),
-                address("Avenida Paulista", "456", "Bela Vista", "São Paulo", "SP", "01310-000")));
+                createAddress("Rua das Flores", "123", "Centro", "São Paulo", "SP", "01001-000"),
+                createAddress("Avenida Paulista", "456", "Bela Vista", "São Paulo", "SP", "01310-000")));
     }
 
-    public static Map<String, Object> createPersonWithoutAddressesRequest(String name, LocalDate birthDate,
+    public static Map<String, Object> createPersonWithEmptyAddressesRequest(
+            String name,
+            LocalDate birthDate,
             String cpf) {
         return createPersonRequest(name, birthDate, cpf, List.of());
     }
 
-    public static Map<String, Object> updatePersonRequest(String name, LocalDate birthDate, String cpf,
+    public static Map<String, Object> updatePersonRequest(
+            String name,
+            LocalDate birthDate,
+            String cpf,
             List<Map<String, Object>> addresses) {
         return createPersonRequest(name, birthDate, cpf, addresses);
     }
 
-    public static Map<String, Object> address(String street, String number, String neighborhood, String city,
-            String state, String cep) {
+    public static Map<String, Object> createAddress(
+            String street,
+            String number,
+            String neighborhood,
+            String city,
+            String state,
+            String cep) {
         Map<String, Object> address = new HashMap<>();
         address.put("street", street);
         address.put("number", number);
@@ -38,7 +48,10 @@ public final class TestPersonFactory {
         return address;
     }
 
-    private static Map<String, Object> createPersonRequest(String name, LocalDate birthDate, String cpf,
+    private static Map<String, Object> createPersonRequest(
+            String name,
+            LocalDate birthDate,
+            String cpf,
             List<Map<String, Object>> addresses) {
         Map<String, Object> request = new HashMap<>();
         request.put("name", name);

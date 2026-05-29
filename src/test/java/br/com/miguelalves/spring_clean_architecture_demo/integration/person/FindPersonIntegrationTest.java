@@ -11,11 +11,11 @@ import br.com.miguelalves.spring_clean_architecture_demo.integration.config.Inte
 import br.com.miguelalves.spring_clean_architecture_demo.utils.TestPersonFactory;
 import static io.restassured.RestAssured.given;
 
-class FindPersonIT extends IntegrationTestBase {
+class FindPersonIntegrationTest extends IntegrationTestBase {
 
         @Test
         void shouldFindPersonById() {
-                Map<String, Object> requestBody = TestPersonFactory.createPersonWithAddressesRequest(
+                Map<String, Object> requestBody = TestPersonFactory.createValidPersonRequest(
                                 "Felipe Santos",
                                 LocalDate.now().minusYears(25),
                                 "22233344455");
@@ -23,13 +23,18 @@ class FindPersonIT extends IntegrationTestBase {
                                 .body(requestBody)
                                 .when()
                                 .post(PERSON_API)
-                                .then().statusCode(201)
-                                .extract().jsonPath().getLong("id");
+                                .then()
+                                .statusCode(201)
+                                .extract()
+                                .jsonPath()
+                                .getLong("id");
+
                 given()
                                 .pathParam("id", id)
                                 .when()
                                 .get(PERSON_API + "/{id}")
-                                .then().log().ifValidationFails()
+                                .then()
+                                .log().ifValidationFails()
                                 .statusCode(200)
                                 .body("id", equalTo(id.intValue()))
                                 .body("name", equalTo("Felipe Santos"))
@@ -44,7 +49,8 @@ class FindPersonIT extends IntegrationTestBase {
                                 .pathParam("id", 9999)
                                 .when()
                                 .get(PERSON_API + "/{id}")
-                                .then().log().ifValidationFails()
+                                .then()
+                                .log().ifValidationFails()
                                 .statusCode(404);
         }
 }

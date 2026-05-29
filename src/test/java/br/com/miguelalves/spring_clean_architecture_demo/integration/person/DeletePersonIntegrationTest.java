@@ -11,11 +11,11 @@ import br.com.miguelalves.spring_clean_architecture_demo.integration.config.Inte
 import br.com.miguelalves.spring_clean_architecture_demo.utils.TestPersonFactory;
 import static io.restassured.RestAssured.given;
 
-class DeletePersonIT extends IntegrationTestBase {
+class DeletePersonIntegrationTest extends IntegrationTestBase {
 
         @Test
         void shouldDeletePersonSuccessfully() {
-                Map<String, Object> requestBody = TestPersonFactory.createPersonWithoutAddressesRequest(
+                Map<String, Object> requestBody = TestPersonFactory.createValidPersonRequest(
                                 "Carlos Duarte",
                                 LocalDate.now().minusYears(45),
                                 "77788899900");
@@ -23,34 +23,17 @@ class DeletePersonIT extends IntegrationTestBase {
                                 .body(requestBody)
                                 .when()
                                 .post(PERSON_API)
-                                .then().statusCode(201)
-                                .extract().jsonPath().getLong("id");
+                                .then()
+                                .statusCode(201)
+                                .extract()
+                                .jsonPath()
+                                .getLong("id");
                 given()
                                 .pathParam("id", id)
                                 .when()
                                 .delete(PERSON_API + "/{id}")
-                                .then().log().ifValidationFails()
-                                .statusCode(204);
-                assertThat(personRepository.findById(id)).isEmpty();
-        }
-
-        @Test
-        void shouldDeletePersonCascadeAddresses() {
-                Map<String, Object> requestBody = TestPersonFactory.createPersonWithAddressesRequest(
-                                "Fernanda Pires",
-                                LocalDate.now().minusYears(38),
-                                "88899900011");
-                Long id = given()
-                                .body(requestBody)
-                                .when()
-                                .post(PERSON_API)
-                                .then().statusCode(201)
-                                .extract().jsonPath().getLong("id");
-                given()
-                                .pathParam("id", id)
-                                .when()
-                                .delete(PERSON_API + "/{id}")
-                                .then().log().ifValidationFails()
+                                .then()
+                                .log().ifValidationFails()
                                 .statusCode(204);
                 assertThat(personRepository.findById(id)).isEmpty();
                 assertThat(countAddresses()).isEqualTo(0);
@@ -62,7 +45,8 @@ class DeletePersonIT extends IntegrationTestBase {
                                 .pathParam("id", 9999)
                                 .when()
                                 .delete(PERSON_API + "/{id}")
-                                .then().log().ifValidationFails()
+                                .then()
+                                .log().ifValidationFails()
                                 .statusCode(404)
                                 .body("error", equalTo("Person not found"));
         }
